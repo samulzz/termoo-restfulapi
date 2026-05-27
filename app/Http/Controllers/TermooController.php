@@ -35,11 +35,28 @@ class TermooController extends Controller
     public function validarTentativa(Request $request): JsonResponse
     {
         $idJogo = $request->input('idJogo');
-        $palavra = $this->normalizarPalavra($request->input('palavra'));
+        $palavra = $this->obterPalavraDaRequisicao($request);
 
         if (!$idJogo || !$palavra) {
             return $this->erro('Informe idJogo e palavra.', 400);
         }
+
+        return $this->validarPalavra($idJogo, $palavra);
+    }
+
+    public function validarTentativaPorJogo(Request $request, string $idJogo): JsonResponse
+    {
+        $palavra = $this->obterPalavraDaRequisicao($request);
+
+        if (!$palavra) {
+            return $this->erro('Informe a palavra.', 400);
+        }
+
+        return $this->validarPalavra($idJogo, $palavra);
+    }
+
+    private function validarPalavra(string $idJogo, string $palavra): JsonResponse
+    {
 
         $jogos = $this->carregarJogos();
 
@@ -160,6 +177,15 @@ class TermooController extends Controller
     private function normalizarPalavra(mixed $palavra): string
     {
         return mb_strtolower(trim((string) $palavra), 'UTF-8');
+    }
+
+    private function obterPalavraDaRequisicao(Request $request): string
+    {
+        return $this->normalizarPalavra(
+            $request->input('palavra')
+                ?? $request->input('tentativa')
+                ?? $request->input('palpite')
+        );
     }
 
     private function temCincoLetras(string $palavra): bool
