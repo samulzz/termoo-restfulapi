@@ -1,0 +1,5 @@
+/vendor
+.git
+.env
+storage/app/jogos.json
+storage/logs/*.log
